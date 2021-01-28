@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Kotlin_Fragments</string>
+    <string name="first_image">First Image Fragment</string>
+    <string name="second_image">Second Image Fragment</string>
+</resources>
