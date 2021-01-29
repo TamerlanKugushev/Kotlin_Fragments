@@ -8,11 +8,10 @@ import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
+import androidx.viewpager.widget.ViewPager
 import kotlinx.android.synthetic.main.activity_main.*
-import java.lang.ClassCastException
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), ViewPager.OnPageChangeListener {
 
     val drawerToogle by lazy {
         ActionBarDrawerToggle(
@@ -29,13 +28,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
         navigationView.setNavigationItemSelectedListener {
-            selectDrawItem(it)
-            true
+            selectItem(it)
         }
-
+        bottomNavigationView.setOnNavigationItemSelectedListener {
+            selectItem(it)
+        }
         drawerLayout.addDrawerListener(drawerToogle)
         val pagerAdapter = ImageFragmentPagerAdapter(supportFragmentManager)
         viewPager.adapter = pagerAdapter
+        viewPager.addOnPageChangeListener(this)
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun selectDrawItem(item: MenuItem) {
+    private fun selectItem(item: MenuItem): Boolean {
 //        var fragment: Fragment? = null
 //        var fragmentClass = when (item.itemId) {
 //            R.id.firstFragmentItem -> FirstImageFragment::class.java
@@ -98,8 +99,30 @@ class MainActivity : AppCompatActivity() {
         when (item.itemId) {
             R.id.firstFragmentItem -> viewPager.currentItem = 0
             R.id.secondFragmentItem -> viewPager.currentItem = 1
+            R.id.thirdFragmentItem -> viewPager.currentItem = 2
             else -> viewPager.currentItem = 0
         }
-        drawerLayout.closeDrawer(GravityCompat.START)
+
+        if (drawerLayout.isDrawerOpen(GravityCompat.START))
+            drawerLayout.closeDrawer(GravityCompat.START)
+        return true
+
+    }
+
+    override fun onPageScrollStateChanged(state: Int) {
+
+    }
+
+    override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+
+    }
+
+    override fun onPageSelected(position: Int) {
+        val currentMenuItem = bottomNavigationView.menu.getItem(position).itemId
+        if (currentMenuItem != bottomNavigationView.selectedItemId) {
+            bottomNavigationView.menu.getItem(position).isChecked = true
+            bottomNavigationView.menu.findItem(bottomNavigationView.selectedItemId).isChecked =
+                false
+        }
     }
 }
