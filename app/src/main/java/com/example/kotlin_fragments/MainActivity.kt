@@ -4,17 +4,21 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentTransaction
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.ClassCastException
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val fragment = FirstImageFragment.newInstance()
-        replaceFragment(fragment)
+        navigationView.setNavigationItemSelectedListener {
+            selectDrawItem(it)
+            true
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -39,9 +43,27 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun replaceFragment(fragment: Fragment) {
+    private fun replaceFragment(fragment: Fragment?) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fragmentContainer, fragment)
+        fragment?.let { fragmentTransaction.replace(R.id.fragmentContainer, it) }
         fragmentTransaction.commit()
+    }
+
+
+    private fun selectDrawItem(item: MenuItem) {
+        var fragment: Fragment? = null
+        var fragmentClass = when (item.itemId) {
+            R.id.firstFragmentItem -> FirstImageFragment::class.java
+            R.id.secondFragmentItem -> SecondImageFragment::class.java
+            else -> FirstImageFragment::class.java
+        }
+
+        try {
+            fragment = fragmentClass.newInstance() as Fragment
+        } catch (e: ClassCastException) {
+            e.printStackTrace()
+        }
+        replaceFragment(fragment)
+        drawerLayout.closeDrawer(GravityCompat.START)
     }
 }
